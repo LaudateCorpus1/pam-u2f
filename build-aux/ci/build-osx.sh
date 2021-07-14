@@ -21,10 +21,26 @@ pushd "/tmp" &>/dev/null
     cmake --build build -- --jobs=2 VERBOSE=1
     sudo make -j $(nproc) -C build install
   popd &>/dev/null
+
+  wget https://sourceforge.net/projects/pamtester/files/pamtester/0.1.2/pamtester-0.1.2.tar.gz -O - | tar -xz
+  pushd "/tmp/pamtester-0.1.2" &>/dev/null
+    autoreconf -i
+    ./configure
+    make
+    sudo make install
+  popd &>/dev/null
 popd &>/dev/null
 
+export DESTDIR="${BUILDROOT}/install"
 pushd "$BUILDROOT" &>/dev/null
   ./autogen.sh
   ./configure --disable-silent-rules --disable-man
   make -j $(nproc)
+  make install
 popd &>/dev/null
+
+mkdir -p ~/.config/Yubico/
+touch ~/.config/Yubico/u2f_keys
+echo "auth sufficient ${DESTDIR}/usr/lib/pam/pam_u2f.so debug" > dummy
+sudo mv dummy /etc/pam.d/
+sudo pamtester dummy $(whoami) authenticate
