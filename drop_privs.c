@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "drop_privs.h"
 #include "util.h"
@@ -113,6 +114,12 @@ int pam_modutil_regain_priv(pam_handle_t *pamh, struct _ykpam_privs *privs) {
     D(privs->debug_file, "setegid: %s", strerror(errno));
     return -1;
   }
+
+  D(privs->debug_file,
+    "privs->saved_groups_length = %d (%d), "
+    "privs->saved_groups = %p",
+    privs->saved_groups_length, NGROUPS_MAX,
+    privs->saved_groups);
 
   if (setgroups(privs->saved_groups_length, privs->saved_groups) < 0) {
     D(privs->debug_file, "setgroups: %s", strerror(errno));
