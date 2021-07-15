@@ -32,6 +32,8 @@
 
 #ifndef HAVE_PAM_MODUTIL_DROP_PRIV
 
+#undef _DARWIN_C_SOURCE /* XXX */
+
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
